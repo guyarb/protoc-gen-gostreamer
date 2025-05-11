@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/leeavital/protoc-gen-gostreamer/example/pb";
+option go_package = "github.com/guyarb/protoc-gen-gostreamer/example/pb";
 
 package foo.bar;
 
