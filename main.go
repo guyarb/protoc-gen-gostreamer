@@ -142,10 +142,12 @@ func handleDescriptor(outFile *FileContext, prefix string, message *descriptorpb
 			fieldTag := fmt.Sprintf("0x%x", (*field.Number<<3)|2)
 			funcName := getSetterName(field)
 			outFile.P(funcPrefix, funcName, "(v string) {")
+			outFile.P("if len(v) > 0 {")
 			outFile.P("x.scratch = x.scratch[:0]")
 			outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch, ", fieldTag, ")")
 			outFile.P("x.scratch = ", outFile.SymAppendString(), "(x.scratch, v)")
 			outFile.P("x.writer.Write(x.scratch)")
+			outFile.P("}")
 			outFile.P("}")
 
 		case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
@@ -211,10 +213,12 @@ func handleVarintField(outFile *FileContext, builderTypeName string, field *desc
 	}
 
 	outFile.P(funcPrefix, funcName, "(v ", argType, " ) {")
+	outFile.P("if v != 0 {")
 	outFile.P("x.scratch = x.scratch[:0]")
 	outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch, ", fieldTag, ")")
 	outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch, uint64(v))")
 	outFile.P("x.writer.Write(x.scratch)")
+	outFile.P("}")
 	outFile.P("}")
 }
 
@@ -257,9 +261,11 @@ func handleFixed64(outFile *FileContext, builderTypeName string, field *descript
 	funcPrefix := "func(x *" + builderTypeName + ") "
 
 	outFile.P(funcPrefix, funcName, "(v ", argType, " ) {")
+	outFile.P("if v != 0 {")
 	outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch[:0], ", fieldTag, ")")
 	outFile.P("x.scratch = ", appender, "(x.scratch, ", uint64Convert, "(v))")
 	outFile.P("x.writer.Write(x.scratch)")
+	outFile.P("}")
 	outFile.P("}")
 }
 
@@ -281,10 +287,12 @@ func handleSigned(outFile *FileContext, builderTypeName string, field *descripto
 	}
 
 	outFile.P(funcPrefix, funcName, "(v ", argType, " ) {")
+	outFile.P("if v != 0 {")
 	outFile.P("x.scratch = x.scratch[:0]")
 	outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch, ", fieldTag, ")")
 	outFile.P("x.scratch = ", outFile.SymAppendVarint(), "(x.scratch, ", outFile.SymEncodeZigZag(), "(int64(v)))")
 	outFile.P("x.writer.Write(x.scratch)")
+	outFile.P("}")
 	outFile.P("}")
 }
 
